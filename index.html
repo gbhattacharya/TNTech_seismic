@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>TNTech Cookeville Seismic Station Live</title>
+  <!-- Auto-reloads the page every 120 seconds -->
+  <meta http-equiv="refresh" content="120">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      background-color: #000;
+    }
+    html, body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    img {
+      max-width: 100vw;
+      max-height: 100vh;
+      object-fit: contain;
+    }
+  </style>
+</head>
+<body>
+  <img id="heli" alt="Live Cookeville TNTU Seismic Drum">
+
+  <script>
+    const STATION = "TNTU_HHZ_Z3_00";
+
+    // Earthworm generates two files daily: 00:00 UTC and 12:00 UTC
+    const now = new Date();
+    const year = now.getUTCFullYear();
+    const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(now.getUTCDate()).padStart(2, '0');
+    const block = now.getUTCHours() >= 12 ? '12' : '00';
+
+    const timestamp = `${year}${month}${day}${block}`;
+
+    // Appends ?v= timestamp to defeat the Samsung TV browser cache
+    const targetUrl = `https://folkworm.ceri.memphis.edu/heli_new/heli_temp/${STATION}.${timestamp}.gif?v=${now.getTime()}`;
+
+    document.getElementById('heli').src = targetUrl;
+  </script>
+</body>
+</html>
