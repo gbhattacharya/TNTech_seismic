@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title>TNTech Cookeville Seismic Station Live</title>
-  <!-- Auto-reloads the page every 120 seconds -->
+  <!-- Auto-reloads every 120 seconds -->
   <meta http-equiv="refresh" content="120">
   <style>
     * {
@@ -32,20 +32,34 @@
 
   <script>
     const STATION = "TNTU_HHZ_Z3_00";
+    const img = document.getElementById('heli');
 
-    // Earthworm generates two files daily: 00:00 UTC and 12:00 UTC
+    function getTimestamp(dateObj) {
+      const year = dateObj.getUTCFullYear();
+      const month = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
+      const day = String(dateObj.getUTCDate()).padStart(2, '0');
+      const block = dateObj.getUTCHours() >= 12 ? '12' : '00';
+      return `${year}${month}${day}${block}`;
+    }
+
     const now = new Date();
-    const year = now.getUTCFullYear();
-    const month = String(now.getUTCMonth() + 1).padStart(2, '0');
-    const day = String(now.getUTCDate()).padStart(2, '0');
-    const block = now.getUTCHours() >= 12 ? '12' : '00';
+    const currentStamp = getTimestamp(now);
 
-    const timestamp = `${year}${month}${day}${block}`;
+    // Calculate the previous 12-hour block timestamp as a safety fallback
+    const past12h = new Date(now.getTime() - (12 * 60 * 60 * 1000));
+    const previousStamp = getTimestamp(past12h);
 
-    // Appends ?v= timestamp to defeat the Samsung TV browser cache
-    const targetUrl = `https://folkworm.ceri.memphis.edu/heli_new/heli_temp/${STATION}.${timestamp}.gif?v=${now.getTime()}`;
+    const primaryUrl = `https://folkworm.ceri.memphis.edu/heli_new/heli_temp/${STATION}.${currentStamp}.gif?v=${now.getTime()}`;
+    const fallbackUrl = `https://folkworm.ceri.memphis.edu/heli_new/heli_temp/${STATION}.${previousStamp}.gif?v=${now.getTime()}`;
 
-    document.getElementById('heli').src = targetUrl;
+    // If the server hasn't generated the new file yet, fall back to the prior block
+    img.onerror = function() {
+      if (this.src !== fallbackUrl) {
+        this.src = fallbackUrl;
+      }
+    };
+
+    img.src = primaryUrl;
   </script>
 </body>
 </html>
